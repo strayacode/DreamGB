@@ -8,3 +8,8 @@ A gameboy emulator to be commenced later...
 3. Optimized where possible
 4. reduce lines in each opcode function (pretty much optimizing)
 5. calling conditions instead of branching
+6. use sdl
+7. emulate ppu delays/timings correctly
+8. pixel fifo
+9. video recording, screenshots
+10. rewind and savestates
