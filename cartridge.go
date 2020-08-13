@@ -1,7 +1,9 @@
 package main
 
 import (
-	// "io/ioutil"
+	"io/ioutil"
+	"os"
+	"fmt"
 )
 
 type Cartridge struct {
@@ -20,3 +22,18 @@ type RAMBank struct {
 	bank [16][0x2000]byte
 }
 
+func (cartridge *Cartridge) loadBootROM() {
+	_, err := os.Stat("bios.rom")
+	if os.IsNotExist(err) {
+		fmt.Println("no bios file detected!")
+		os.Exit(0)
+	}
+	file, err := ioutil.ReadFile("bios.rom")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for i := 0; i < len(file); i++ {
+		cartridge.ROM[i] = file[i]
+	}
+}
