@@ -23,9 +23,7 @@ func (config *Config) fetchFlags() {
 	flag.StringVar(&bootrompath, "bootrom", "", "allows user to specify a bootrom instead of skipping")
 	flag.Parse()
 	// only allow for gb rom as non-flag argument
-	if len(flag.Args()) == 1 && strings.HasSuffix(flag.Args()[0], ".gb") {
-		fmt.Println(flag.Args()[0])
-	} else {
+	if !(len(flag.Args()) == 1 && strings.HasSuffix(flag.Args()[0], ".gb")) {
 		fmt.Println("please provide a valid rom type such as .gb!")
 		os.Exit(0)
 	}
