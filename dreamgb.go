@@ -4,16 +4,19 @@ import (
 	"fmt"
 )
 
+var (
+	cpu = CPU{}
+	window = Window{}
+	config = Config{}
+)
+
 func main() {
-	window := Window{}
-	config := Config{}
-	cpu := CPU{}
 	config.fetchFlags()
 	// load bootrom
 	if config.bootrom {
 		fmt.Println("use bootrom")
 		cpu.bus.cartridge.loadBootROM()
-		fmt.Println(cpu.bus.cartridge.ROM)
+		fmt.Println(cpu.bus.cartridge.rombank.bank[0])
 	} else {
 		// skip bootrom
 		cpu.initRegisters()

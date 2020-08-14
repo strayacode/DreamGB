@@ -2,6 +2,11 @@ package main
 
 import (
 	"github.com/veandco/go-sdl2/sdl"
+	"fmt"
+)
+
+const (
+	FRAME_CLOCKS = 70224 // number of t-cycle per frame
 )
 
 type Window struct {
@@ -33,6 +38,20 @@ func (window *Window) init() {
 
 func (window *Window) loop() {
 	for window.running {
+		// tick components
+		if config.stepmode {
+			var input string
+			fmt.Print("> ")
+			fmt.Scanf("%s", &input)
+			if input == "" || input == "next" || input == "n" {
+				cpu.step()
+			}
+
+		} else {
+			for cpu.cycles < FRAME_CLOCKS {
+				cpu.cycles++
+			}
+		}
     	window.renderer.Clear()
     	window.renderer.SetDrawColor(255, 255, 55, 255)
 		window.renderer.Present()

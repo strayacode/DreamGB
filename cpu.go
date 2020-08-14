@@ -1,5 +1,9 @@
 package main
 
+import (
+	// "fmt"
+)
+
 type CPU struct {
 	bus Bus
 	A byte
@@ -12,6 +16,8 @@ type CPU struct {
 	L byte
 	PC uint16
 	SP uint16
+	cycles int // amount of cycles elapsed per frame
+	opcode byte
 }
 
 func (cpu *CPU) initRegisters() {
@@ -52,3 +58,21 @@ func (cpu *CPU) initIO() {
 	cpu.bus.ppu.OBP0, cpu.bus.ppu.OBP1 = 0xFF, 0xFF
 	cpu.bus.ppu.WY, cpu.bus.ppu.WX, cpu.bus.interrupt.IE = 0x00, 0x00, 0x00
 }
+
+// executes an opcode and increments the cycles (useful for stepmode)
+func (cpu *CPU) step() {
+	cpu.fetchOpcode()
+	cpu.debugCPU()
+}
+
+// advances the cpu by n cycles
+func (cpu *CPU) tick(cycles int) {
+	cpu.cycles += 4
+	cpu.bus.ppu.cycles += 4
+}
+
+func (cpu *CPU) fetchOpcode() {
+	cpu.opcode = cpu.bus.read(cpu.PC)
+	cpu.PC++
+}
+

@@ -7,9 +7,17 @@ import (
 )
 
 type Cartridge struct {
-	ROM [0x4000]byte
 	rombank ROMBank
 	rambank RAMBank
+	header Header
+	ERAM [0x2000]byte
+}
+
+type Header struct {
+	title string
+	cartridgeType byte
+	ROMSize byte
+	RAMSize byte
 }
 
 type ROMBank struct {
@@ -34,6 +42,6 @@ func (cartridge *Cartridge) loadBootROM() {
 	}
 
 	for i := 0; i < len(file); i++ {
-		cartridge.ROM[i] = file[i]
+		cartridge.rombank.bank[0][i] = file[i]
 	}
 }
