@@ -4,7 +4,7 @@ A gameboy emulator to be commenced later...
 **Core Focuses of the Project (as well as features i want to add):**
 
 1. Well-written debugger with lots of interactive parts as well
-2. As accurate as I can make it
+2. try to make more accurate compared to RoseGB and make more accurate overtime
 3. Optimized where possible
 4. reduce lines in each opcode function (pretty much optimizing)
 5. calling conditions instead of branching
