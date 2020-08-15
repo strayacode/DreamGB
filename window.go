@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/veandco/go-sdl2/sdl"
 	"fmt"
+	"os"
 )
 
 const (
@@ -45,12 +46,16 @@ func (window *Window) loop() {
 			fmt.Scanf("%s", &input)
 			if input == "" || input == "next" || input == "n" {
 				cpu.step()
+				cpu.debugCPU()
+			} else if input == "q" || input == "quit" {
+				os.Exit(0)
 			}
 
 		} else {
 			for cpu.cycles < FRAME_CLOCKS {
-				cpu.cycles++
+				cpu.step()
 			}
+			cpu.cycles = 0
 		}
     	window.renderer.Clear()
     	window.renderer.SetDrawColor(255, 255, 55, 255)

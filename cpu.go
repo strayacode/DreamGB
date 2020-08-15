@@ -1,8 +1,8 @@
 package main
 
-import (
-	// "fmt"
-)
+// import (
+// 	"fmt"
+// )
 
 type CPU struct {
 	bus Bus
@@ -61,8 +61,9 @@ func (cpu *CPU) initIO() {
 
 // executes an opcode and increments the cycles (useful for stepmode)
 func (cpu *CPU) step() {
-	cpu.fetchOpcode()
-	cpu.debugCPU()
+	cpu.opcode = cpu.fetchOpcode()
+	cpu.executeOpcode()
+	// cpu.debugCPU()
 }
 
 // advances the cpu by n cycles
@@ -71,8 +72,56 @@ func (cpu *CPU) tick(cycles int) {
 	cpu.bus.ppu.cycles += 4
 }
 
-func (cpu *CPU) fetchOpcode() {
-	cpu.opcode = cpu.bus.read(cpu.PC)
+func (cpu *CPU) fetchOpcode() byte {
+	result := cpu.bus.read(cpu.PC)
 	cpu.PC++
+	return result
 }
+
+func (cpu *CPU) executeOpcode() {
+	opcodes[cpu.opcode].exec(cpu)
+}
+
+func (cpu *CPU) ZFlag(value bool) {
+	if value {
+		cpu.F |= (1 << 7)
+	} else {
+		cpu.F &= 0x7F
+	}
+}
+
+func (cpu *CPU) NFlag(value bool) {
+	if value {
+		cpu.F |= (1 << 6)
+	} else {
+		cpu.F &= 0xBF
+	}
+}
+
+func (cpu *CPU) HFlag(value bool) {
+	if value {
+		cpu.F |= (1 << 5)
+	} else {
+		cpu.F &= 0xDF
+	}
+}
+
+func (cpu *CPU) CFlag(value bool) {
+	if value {
+		cpu.F |= (1 << 4)
+	} else {
+		cpu.F &= 0xEF
+	}
+}
+
+func (cpu *CPU) getZFlag() bool{
+	if cpu.F & 0x80 == 0 {
+		// z flag not set
+		return false
+	} else {
+		return true
+	}
+}
+
+
 

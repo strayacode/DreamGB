@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Bus struct {
@@ -28,7 +29,7 @@ func (bus *Bus) read(addr uint16) byte {
 	case addr >= 0xC000 && addr <= 0xCFFF:
 		return bus.WRAM[addr - 0xC000]
 	case addr >= 0xE000 && addr <= 0xFDFF:
-		return bus.read(addr - 0x2000)
+		return bus.WRAM[addr - 0xE000]
 	case addr >= 0xFE00 && addr <= 0xFE9F:
 		return bus.ppu.OAM[addr - 0xFE00]
 	// TODO: check behaviour for unusable area later
@@ -42,14 +43,58 @@ func (bus *Bus) read(addr uint16) byte {
 		fmt.Println("unimplemented memory read!")
 		return 0
 	}
-	
+}
+
+func (bus *Bus) read16(addr uint16) uint16 {
+	// remember gameboy is little-endian: if given data 0xFFFE then 0xFE is read/stored first then 0xFF
+	return uint16(bus.read(addr + 1)) << 8 | uint16(bus.read(addr))
+}
+
+func (bus *Bus) write(addr uint16, data byte) {
+	cpu.tick(4)
+	switch {
+	// no writes allowed to rom mem region
+	case addr >= 0x8000 && addr <= 0x9FFF:
+		bus.ppu.VRAM[addr - 0x8000] = data
+	case addr >= 0xA000 && addr <= 0xBFFF:
+		bus.cartridge.rambank.bank[bus.cartridge.rambank.bankptr][addr - 0xA000] = data
+	case addr >= 0xC000 && addr <= 0xDFFF:
+		bus.WRAM[addr - 0xC000] = data
+	case addr >= 0xE000 && addr <= 0xFDFF:
+		bus.WRAM[addr - 0xE000] = data
+	case addr >= 0xFE00 && addr <= 0xFE9F:
+		bus.ppu.OAM[addr - 0xFE00] = data
+	case addr >= 0xFF00 && addr <= 0xFF7F:
+		bus.writeIO(addr, data)
+	}
 }
 
 func (bus *Bus) readIO(addr uint16) byte {
-	switch {
+	switch addr {
 	default:
 		return 0
 		fmt.Println(addr)
 	}
 	return 0
+}
+
+func (bus *Bus) writeIO(addr uint16, data byte) {
+	switch addr {
+	case 0xFF11:
+		bus.apu.NR11 = data
+	case 0xFF12:
+		bus.apu.NR12 = data
+	case 0xFF24:
+		bus.apu.NR50 = data
+	case 0xFF25:
+		bus.apu.NR51 = data
+	case 0xFF26:
+		bus.apu.NR52 = data
+	case 0xFF47:
+		bus.ppu.BGP = data
+	case 0xFF50:
+		bus.cartridge.unmapBootROM()
+	default:
+		fmt.Println("unimplemented write! 0x" + strconv.FormatUint(uint64(addr), 16))
+	}
 }
