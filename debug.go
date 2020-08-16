@@ -15,3 +15,10 @@ func (cpu *CPU) debugCPU() {
 	fmt.Println("Opcode: 0x" + strconv.FormatUint(uint64(cpu.opcode), 16))
 	fmt.Println("Cycles: " + strconv.Itoa(cpu.cycles))
 }
+
+func (cpu *CPU) debugPPU() {
+	fmt.Println("LCDC: 0x" + strconv.FormatUint(uint64(cpu.bus.ppu.LCDC), 16))
+	fmt.Println("LCDCSTAT: 0x" + strconv.FormatUint(uint64(cpu.bus.ppu.LCDCSTAT), 16))
+	fmt.Println("LY: 0x" + strconv.FormatUint(uint64(cpu.bus.ppu.LY), 16))
+	fmt.Println("PPU cycles: " + strconv.Itoa(cpu.bus.ppu.cycles))
+}

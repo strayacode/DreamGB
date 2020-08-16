@@ -46,7 +46,9 @@ func (window *Window) loop() {
 			fmt.Scanf("%s", &input)
 			if input == "" || input == "next" || input == "n" {
 				cpu.step()
+				cpu.bus.ppu.update()
 				cpu.debugCPU()
+				// cpu.debugPPU()
 			} else if input == "q" || input == "quit" {
 				os.Exit(0)
 			}
@@ -54,8 +56,12 @@ func (window *Window) loop() {
 		} else {
 			for cpu.cycles < FRAME_CLOCKS {
 				cpu.step()
+				cpu.bus.ppu.update()
+				// cpu.debugCPU()
 			}
 			cpu.cycles = 0
+			// probably not needed
+			cpu.bus.ppu.cycles = 0
 		}
     	window.renderer.Clear()
     	window.renderer.SetDrawColor(255, 255, 55, 255)

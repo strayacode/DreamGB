@@ -73,9 +73,8 @@ func (cpu *CPU) tick(cycles int) {
 }
 
 func (cpu *CPU) fetchOpcode() byte {
-	result := cpu.bus.read(cpu.PC)
 	cpu.PC++
-	return result
+	return cpu.bus.read(cpu.PC - 1)
 }
 
 func (cpu *CPU) executeOpcode() {
@@ -114,8 +113,35 @@ func (cpu *CPU) CFlag(value bool) {
 	}
 }
 
-func (cpu *CPU) getZFlag() bool{
+func (cpu *CPU) getZFlag() bool {
 	if cpu.F & 0x80 == 0 {
+		// z flag not set
+		return false
+	} else {
+		return true
+	}
+}
+
+func (cpu *CPU) getNFlag() bool {
+	if cpu.F & 0x40 == 0 {
+		// z flag not set
+		return false
+	} else {
+		return true
+	}
+}
+
+func (cpu *CPU) getHFlag() bool {
+	if cpu.F & 0x20 == 0 {
+		// z flag not set
+		return false
+	} else {
+		return true
+	}
+}
+
+func (cpu *CPU) getCFlag() bool {
+	if cpu.F & 0x10 == 0 {
 		// z flag not set
 		return false
 	} else {

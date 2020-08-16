@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	// "os"
 )
 
 type Bus struct {
@@ -13,6 +14,8 @@ type Bus struct {
 	interrupt Interrupt
 	apu APU
 	cartridge Cartridge
+	input Input
+	serial Serial
 }
 
 func (bus *Bus) read(addr uint16) byte {
@@ -26,7 +29,7 @@ func (bus *Bus) read(addr uint16) byte {
 		return bus.ppu.VRAM[addr - 0x8000]
 	case addr >= 0xA000 && addr <= 0xBFFF:
 		return bus.cartridge.rambank.bank[bus.cartridge.rambank.bankptr][addr - 0xA000]
-	case addr >= 0xC000 && addr <= 0xCFFF:
+	case addr >= 0xC000 && addr <= 0xDFFF:
 		return bus.WRAM[addr - 0xC000]
 	case addr >= 0xE000 && addr <= 0xFDFF:
 		return bus.WRAM[addr - 0xE000]
@@ -40,7 +43,8 @@ func (bus *Bus) read(addr uint16) byte {
 	case addr == 0xFFFF:
 		return bus.interrupt.IE
 	default:
-		fmt.Println("unimplemented memory read!")
+		fmt.Println("unimplemented memory read! 0x" + strconv.FormatUint(uint64(addr), 16))
+		// os.Exit(0)
 		return 0
 	}
 }
@@ -80,6 +84,15 @@ func (bus *Bus) readIO(addr uint16) byte {
 
 func (bus *Bus) writeIO(addr uint16, data byte) {
 	switch addr {
+	case 0xFF00:
+		bus.input.P1 = data
+	case 0xFF01:
+		bus.serial.SB = data
+		fmt.Println(string(data))
+	case 0xFF02:
+		bus.serial.SC = data
+	case 0xFF0F:
+		bus.interrupt.IF = data
 	case 0xFF11:
 		bus.apu.NR11 = data
 	case 0xFF12:
@@ -90,6 +103,17 @@ func (bus *Bus) writeIO(addr uint16, data byte) {
 		bus.apu.NR51 = data
 	case 0xFF26:
 		bus.apu.NR52 = data
+	case 0xFF30, 0xFF31, 0xFF32, 0xFF33, 0xFF34, 0xFF35, 0xFF36, 0xFF37, 0xFF38, 0xFF39, 0xFF3A, 0xFF3B, 0xFF3C, 0xFF3D, 0xFF3E, 0xFF3F:
+		bus.apu.WAVEPATTERN[addr - 0xFF30] = data
+	case 0xFF40:
+		bus.ppu.LCDC = data
+	case 0xFF41:
+		bus.ppu.LCDCSTAT = data
+		// todo: block writes to first 2 bits
+	case 0xFF42:
+		bus.ppu.SCY = data
+	case 0xFF43:
+		bus.ppu.SCX = data
 	case 0xFF47:
 		bus.ppu.BGP = data
 	case 0xFF50:
