@@ -1,5 +1,4 @@
 # DreamGB
-A gameboy emulator to be commenced later...
 
 **Core Focuses of the Project (as well as features i want to add):**
 
@@ -14,3 +13,5 @@ A gameboy emulator to be commenced later...
 9. video recording, screenshots
 10. rewind and savestates
 11. zip file opening
+
+TODO: check LY at 0x64 bootrom
