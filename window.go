@@ -58,6 +58,11 @@ func (window *Window) loop() {
 				cpu.step()
 				cpu.bus.ppu.update()
 				// cpu.debugCPU()
+				// if cpu.PC == 0x6B {
+					// os.Exit(0)
+				// }
+				
+
 			}
 			cpu.cycles = 0
 			// probably not needed

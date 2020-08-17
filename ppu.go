@@ -19,6 +19,7 @@ type PPU struct {
 	WX byte
 	WY byte
 	cycles int // counts the cycles per line
+	DMA byte
 	// add accurate cpu oam and vram accesses
 }
 // how it works: each line goes for 456 t cycles for the 144 scanlines and vblank takes 4560

@@ -18,6 +18,7 @@ type CPU struct {
 	SP uint16
 	cycles int // amount of cycles elapsed per frame
 	opcode byte
+	halt bool
 }
 
 func (cpu *CPU) initRegisters() {
@@ -113,40 +114,20 @@ func (cpu *CPU) CFlag(value bool) {
 	}
 }
 
-func (cpu *CPU) getZFlag() bool {
-	if cpu.F & 0x80 == 0 {
-		// z flag not set
-		return false
-	} else {
-		return true
-	}
+func (cpu *CPU) getZFlag() byte {
+	return (cpu.F & 0x80) >> 7
 }
 
-func (cpu *CPU) getNFlag() bool {
-	if cpu.F & 0x40 == 0 {
-		// z flag not set
-		return false
-	} else {
-		return true
-	}
+func (cpu *CPU) getNFlag() byte {
+	return (cpu.F & 0x40) >> 6
 }
 
-func (cpu *CPU) getHFlag() bool {
-	if cpu.F & 0x20 == 0 {
-		// z flag not set
-		return false
-	} else {
-		return true
-	}
+func (cpu *CPU) getHFlag() byte {
+	return (cpu.F & 0x20) >> 5
 }
 
-func (cpu *CPU) getCFlag() bool {
-	if cpu.F & 0x10 == 0 {
-		// z flag not set
-		return false
-	} else {
-		return true
-	}
+func (cpu *CPU) getCFlag() byte {
+	return (cpu.F & 0x10) >> 4
 }
 
 
