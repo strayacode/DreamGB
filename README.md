@@ -14,4 +14,3 @@
 10. rewind and savestates
 11. zip file opening
 
-TODO: check LY at 0x64 bootrom
