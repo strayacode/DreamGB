@@ -190,6 +190,8 @@ func (bus *Bus) writeIO(addr uint16, data byte) {
 		bus.apu.NR11 = data
 	case 0xFF12:
 		bus.apu.NR12 = data
+	case 0xFF13:
+		bus.apu.NR13 = data
 	case 0xFF14:
 		bus.apu.NR14 = data
 	case 0xFF16:
@@ -215,6 +217,10 @@ func (bus *Bus) writeIO(addr uint16, data byte) {
 		bus.ppu.SCX = data
 	case 0xFF47:
 		bus.ppu.BGP = data
+	case 0xFF48:
+		bus.ppu.OBP0 = data
+	case 0xFF49:
+		bus.ppu.OBP1 = data
 	case 0xFF50:
 		bus.cartridge.unmapBootROM()
 	default:

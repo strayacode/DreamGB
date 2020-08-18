@@ -71,6 +71,7 @@ func (cpu *CPU) step() {
 func (cpu *CPU) tick(cycles int) {
 	cpu.cycles += 4
 	cpu.bus.ppu.cycles += 4
+	cpu.bus.ppu.update()
 }
 
 func (cpu *CPU) fetchOpcode() byte {

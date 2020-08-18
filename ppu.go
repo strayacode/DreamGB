@@ -32,8 +32,9 @@ func (ppu *PPU) update() {
 			ppu.cycles = 0
 			ppu.LY++
 			if ppu.LY >= 144 {
+				// fmt.Println("vblank")
 				// enter mode 1
-				ppu.LCDCSTAT |= 0x02
+				ppu.LCDCSTAT |= 0x01
 				ppu.LCDCSTAT &= 0xFD
 			} else {
 				// enter 2 (new scanline)
@@ -44,10 +45,12 @@ func (ppu *PPU) update() {
 	case 1:
 		if ppu.cycles >= 456 {
 			// check LYC interrupt later but increment LY
+			ppu.cycles = 0
 			ppu.LY++
 			if ppu.LY > 153 {
 				ppu.LCDCSTAT |= 0x02
 				ppu.LCDCSTAT &= 0xFE
+				
 				ppu.LY = 0
 			}
 		}

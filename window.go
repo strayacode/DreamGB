@@ -56,11 +56,13 @@ func (window *Window) loop() {
 		} else {
 			for cpu.cycles < FRAME_CLOCKS {
 				cpu.step()
-				cpu.bus.ppu.update()
-				// cpu.debugCPU()
-				// if cpu.PC == 0x6B {
+				
+				
+				// if cpu.PC == 0xFC {
+					// cpu.debugCPU()
 					// os.Exit(0)
 				// }
+				
 				
 
 			}
