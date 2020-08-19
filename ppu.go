@@ -2,7 +2,7 @@ package main
 
 import (
 	"math"
-	"fmt"
+	// "fmt"
 )
 
 var (
@@ -101,10 +101,6 @@ func (ppu *PPU) update() {
 func (ppu *PPU) drawScanline() {
 	for i := 0; i < 20; i++ {
 		ppu.fetchRow()
-		if ppu.LX >= 160 {
-			ppu.BGFIFO = nil
-			break
-		}
 	}
 }
 
@@ -130,6 +126,7 @@ func (ppu *PPU) fetchRow() {
 			ppu.BGFIFO = append(ppu.BGFIFO, Pixel{colour, 0, 0, 0}) // ignore last 3 params for now
 			// first 8 pixels appended
 		}
+		
 	} else {
 		ppu.pushPixel()
 		ppu.pushPixel()
@@ -142,6 +139,9 @@ func (ppu *PPU) fetchRow() {
 		ppu.pushPixel()
 		// next read data 0
 		tile0 := ppu.VRAM[ppu.getBGStartAddr() - 0x8000 + uint16(ppu.VRAM[tileAddr - 0x8000]) * 16 + tileOffset]
+		// if tile0 != 0 {
+		// 	fmt.Println(tile0, ppu.LY, ppu.LX)
+		// }
 		ppu.pushPixel()
 		ppu.pushPixel()
 		// next read data 1
@@ -151,22 +151,24 @@ func (ppu *PPU) fetchRow() {
 		// now fifo should be only 8 pixels large
 		for i := 0; i < 8; i++ {
 			selection := ((((1 << (7 - i)) & tile0)) >> (7 - i)) << 1 | ((1 << (7 - i)) & tile1) >> (7 - i)
-			colour := (ppu.BGP & (0x03 << (selection * 2))) >> (selection * 2)
+			// colour := (ppu.BGP & (0x03 << (selection * 2))) >> (selection * 2)
 			// for now ignore colour
-			ppu.BGFIFO = append(ppu.BGFIFO, Pixel{colour, 0, 0, 0}) // ignore last 3 params for now
+			ppu.BGFIFO = append(ppu.BGFIFO, Pixel{selection, 0, 0, 0}) // ignore last 3 params for now
 			// first 8 pixels appended
 		}
+		// if tile0 != 0 {
+		// 	fmt.Println(ppu.VRAM, ppu.LY, ppu.LX, ppu.BGFIFO)
+		// }
 	}
 	
 }
 
 func (ppu *PPU) pushPixel() {
-	fmt.Println(ppu.LY, ppu.LX, colours[ppu.BGFIFO[0].colour])
+	
 	// push pixel to framebuffer
-	ppu.frameBuffer[(ppu.LY * 160 + ppu.LX) * 3] = colours[ppu.BGFIFO[0].colour].R
-	ppu.frameBuffer[(ppu.LY * 160 + ppu.LX) * 3 + 1] = colours[ppu.BGFIFO[0].colour].G
-	ppu.frameBuffer[(ppu.LY * 160 + ppu.LX) * 3 + 2] = colours[ppu.BGFIFO[0].colour].B
-	fmt.Println(ppu.frameBuffer)
+	ppu.frameBuffer[(uint32(ppu.LY) * 160 + uint32(ppu.LX)) * 3] = colours[ppu.BGFIFO[0].colour].R
+	ppu.frameBuffer[(uint32(ppu.LY) * 160 + uint32(ppu.LX)) * 3 + 1] = colours[ppu.BGFIFO[0].colour].G
+	ppu.frameBuffer[(uint32(ppu.LY) * 160 + uint32(ppu.LX)) * 3 + 2] = colours[ppu.BGFIFO[0].colour].B
 	// increment ppu.LX
 	ppu.LX++
 	

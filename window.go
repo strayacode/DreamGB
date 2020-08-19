@@ -75,6 +75,7 @@ func (window *Window) loop() {
 		window.renderer.Clear()
 		window.renderer.Copy(window.texture, nil, nil)
 		window.renderer.Present()
+		// fmt.Println(cpu.bus.ppu.VRAM)
 		// fmt.Println(cpu.bus.ppu.frameBuffer)
     	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
