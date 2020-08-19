@@ -14,3 +14,4 @@
 10. rewind and savestates
 11. zip file opening
 
+TODO: combine ret/ jr cc opcodes into 1 function
