@@ -74,8 +74,7 @@ func (cpu *CPU) ANDA_r8(r8 byte) {
 }
 
 func (cpu *CPU) ANDA_memHL() {
-	hl := cpu.bus.read(uint16(cpu.H) << 8 | uint16(cpu.L))
-	cpu.A &= hl
+	cpu.A &= cpu.bus.read(uint16(cpu.H) << 8 | uint16(cpu.L))
 	cpu.ZFlag(cpu.A == 0)
 	cpu.NFlag(false)
 	cpu.HFlag(true)
@@ -144,7 +143,7 @@ func (cpu *CPU) INC_memHL() {
 	cpu.HFlag(((result & 0xF) + (1 & 0xF)) & 0x10 == 0x10)
 	result++
 	cpu.ZFlag(result == 0)
-	cpu.NFlag(true)
+	cpu.NFlag(false)
 	cpu.bus.write(uint16(cpu.H) << 8 | uint16(cpu.L), result)
 }
 
@@ -157,8 +156,7 @@ func (cpu *CPU) ORA_r8(r8 byte) {
 }
 
 func (cpu *CPU) ORA_memHL() {
-	hl := cpu.bus.read(uint16(cpu.H) << 8 | uint16(cpu.L))
-	cpu.A |= hl
+	cpu.A |= cpu.bus.read(uint16(cpu.H) << 8 | uint16(cpu.L))
 	cpu.ZFlag(cpu.A == 0)
 	cpu.NFlag(false)
 	cpu.HFlag(false)
@@ -185,10 +183,11 @@ func (cpu *CPU) SBCA_r8(r8 byte) {
 
 func (cpu *CPU) SBCA_memHL() {
 	hl := cpu.bus.read(uint16(cpu.H) << 8 | uint16(cpu.L))
+	result := cpu.A - (cpu.getCFlag() + hl)
 	cpu.HFlag(((cpu.A & 0xF) - (cpu.getCFlag() & 0xF) - (hl & 0xF)) & 0x10 == 0x10)
 	cpu.NFlag(true)
 	cpu.CFlag(uint16(cpu.getCFlag()) + uint16(hl) > uint16(cpu.A))
-	cpu.A -= (cpu.getCFlag() + hl)
+	cpu.A = result
 	cpu.ZFlag(cpu.A == 0)
 }
 
@@ -1010,7 +1009,7 @@ var opcodes = [256]Opcode {
 	Opcode{"NOP", func(cpu *CPU) { cpu.NOP() }}, Opcode{"LD BC, u16", func(cpu *CPU) { cpu.LDr16_u16(&cpu.B, &cpu.C) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"INC BC", func(cpu *CPU) { cpu.INC_r16(&cpu.B, &cpu.C) }}, Opcode{"INC B", func(cpu *CPU) { cpu.INC_r8(&cpu.B) }}, Opcode{"DEC B", func(cpu *CPU) { cpu.DEC_r8(&cpu.B) }}, Opcode{"LD B, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.B) }}, Opcode{"RLCA", func(cpu *CPU) { cpu.RLCA() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"ADD HL, BC", func(cpu *CPU) { cpu.ADDHL_r16(cpu.B, cpu.C) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"INC C", func(cpu *CPU) { cpu.INC_r8(&cpu.C) }}, Opcode{"DEC C", func(cpu *CPU) { cpu.DEC_r8(&cpu.C) }}, Opcode{"LD C, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.C) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
 	Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD DE, u16", func(cpu *CPU) { cpu.LDr16_u16(&cpu.D, &cpu.E) }}, Opcode{"LD (DE), A", func(cpu *CPU) { cpu.LDmemr16_A(cpu.D, cpu.E) }}, Opcode{"INC DE", func(cpu *CPU) { cpu.INC_r16(&cpu.D, &cpu.E) }}, Opcode{"INC D", func(cpu *CPU) { cpu.INC_r8(&cpu.D) }}, Opcode{"DEC D", func(cpu *CPU) { cpu.DEC_r8(&cpu.D) }}, Opcode{"LD D, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.D) }}, Opcode{"RLA", func(cpu *CPU) { cpu.RLA() }}, Opcode{"JR i8", func(cpu *CPU) { cpu.JR_i8() }}, Opcode{"ADD HL, DE", func(cpu *CPU) { cpu.ADDHL_r16(cpu.D, cpu.E) }}, Opcode{"LD A, (DE)", func(cpu *CPU) { cpu.LDA_memr16(cpu.D, cpu.E) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"INC E", func(cpu *CPU) { cpu.INC_r8(&cpu.E) }}, Opcode{"DEC E", func(cpu *CPU) { cpu.DEC_r8(&cpu.E) }}, Opcode{"LD E, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.E) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
 	Opcode{"JR NZ, i8", func(cpu *CPU) { cpu.JRNZ_i8() }}, Opcode{"LD HL, u16", func(cpu *CPU) { cpu.LDr16_u16(&cpu.H, &cpu.L) }}, Opcode{"LD (HL+), A", func(cpu *CPU) { cpu.LDIHL_A() }}, Opcode{"INC HL", func(cpu *CPU) { cpu.INC_r16(&cpu.H, &cpu.L) }}, Opcode{"INC H", func(cpu *CPU) { cpu.INC_r8(&cpu.H) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD H, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.H) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"JR Z, i8", func(cpu *CPU) { cpu.JRZ_i8() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD A, (HL+)", func(cpu *CPU) { cpu.LDA_IHL() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD L, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.L) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
-	Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD SP, u16", func(cpu *CPU) { cpu.LDSP_u16() }}, Opcode{"LD (HL-), A", func(cpu *CPU) { cpu.LDDHL_A() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"DEC (HL)", func(cpu *CPU) { cpu.DEC_memHL() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"INC A", func(cpu *CPU) { cpu.INC_r8(&cpu.A) }}, Opcode{"DEC A", func(cpu *CPU) { cpu.DEC_r8(&cpu.A) }}, Opcode{"LD A, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.A) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
+	Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD SP, u16", func(cpu *CPU) { cpu.LDSP_u16() }}, Opcode{"LD (HL-), A", func(cpu *CPU) { cpu.LDDHL_A() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"DEC (HL)", func(cpu *CPU) { cpu.DEC_memHL() }}, Opcode{"LD (HL), u8", func(cpu *CPU) { cpu.LDmemHL_u8() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"INC A", func(cpu *CPU) { cpu.INC_r8(&cpu.A) }}, Opcode{"DEC A", func(cpu *CPU) { cpu.DEC_r8(&cpu.A) }}, Opcode{"LD A, u8", func(cpu *CPU) { cpu.LDr8_u8(&cpu.A) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
 	Opcode{"LD B, B", func(cpu *CPU) { cpu.LDr8_r8(&cpu.B, cpu.B) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD B, A", func(cpu *CPU) { cpu.LDr8_r8(&cpu.B, cpu.A) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD C, A", func(cpu *CPU) { cpu.LDr8_r8(&cpu.C, cpu.A) }}, 
 	Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD D, A", func(cpu *CPU) { cpu.LDr8_r8(&cpu.D, cpu.A) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 
 	Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"LD H, A", func(cpu *CPU) { cpu.LDr8_r8(&cpu.H, cpu.A) }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, Opcode{"NOP", func(cpu *CPU) { cpu.UND_OP() }}, 

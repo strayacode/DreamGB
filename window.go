@@ -11,8 +11,8 @@ const (
 )
 
 type Window struct {
-	width int
-	height int
+	width int32
+	height int32
 	screen *sdl.Window
 	renderer *sdl.Renderer
 	texture *sdl.Texture
@@ -26,7 +26,7 @@ func (window *Window) init() {
 	window.running = true
 	sdl.Init(sdl.INIT_EVERYTHING)
 	var err error
-	window.screen, err = sdl.CreateWindow("DreamGB", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 256, 256, sdl.WINDOW_SHOWN)
+	window.screen, err = sdl.CreateWindow("DreamGB", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, window.width, window.height, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
@@ -35,6 +35,10 @@ func (window *Window) init() {
     if err != nil {
     	panic(err)
 	}	
+	window.texture, err = window.renderer.CreateTexture(sdl.PIXELFORMAT_RGB24, sdl.TEXTUREACCESS_STREAMING, window.width, window.height)
+    if err != nil {
+    	panic(err)
+    }
 }
 
 func (window *Window) loop() {
@@ -47,7 +51,8 @@ func (window *Window) loop() {
 			if input == "" || input == "next" || input == "n" {
 				cpu.step()
 				cpu.bus.ppu.update()
-				cpu.debugCPU()
+				cpu.debugPPU()
+				// cpu.debugCPU()
 				// cpu.debugPPU()
 			} else if input == "q" || input == "quit" {
 				os.Exit(0)
@@ -58,10 +63,6 @@ func (window *Window) loop() {
 				cpu.step()
 				
 				
-				// if cpu.PC == 0xFC {
-					// cpu.debugCPU()
-					// os.Exit(0)
-				// }
 				
 				
 
@@ -70,9 +71,11 @@ func (window *Window) loop() {
 			// probably not needed
 			cpu.bus.ppu.cycles = 0
 		}
-    	window.renderer.Clear()
-    	window.renderer.SetDrawColor(255, 255, 55, 255)
+		window.texture.Update(nil, cpu.bus.ppu.frameBuffer[:], 160*3)
+		window.renderer.Clear()
+		window.renderer.Copy(window.texture, nil, nil)
 		window.renderer.Present()
+		// fmt.Println(cpu.bus.ppu.frameBuffer)
     	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
 			case *sdl.QuitEvent:

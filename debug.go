@@ -21,4 +21,5 @@ func (cpu *CPU) debugPPU() {
 	fmt.Println("LCDCSTAT: 0x" + strconv.FormatUint(uint64(cpu.bus.ppu.LCDCSTAT), 16))
 	fmt.Println("LY: 0x" + strconv.FormatUint(uint64(cpu.bus.ppu.LY), 16))
 	fmt.Println("PPU cycles: " + strconv.Itoa(cpu.bus.ppu.cycles))
+	fmt.Println(cpu.bus.ppu.BGFIFO)
 }

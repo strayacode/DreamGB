@@ -222,6 +222,7 @@ func (bus *Bus) writeIO(addr uint16, data byte) {
 	case 0xFF49:
 		bus.ppu.OBP1 = data
 	case 0xFF50:
+		// fmt.Println(bus.ppu.VRAM, bus.ppu.frameBuffer)
 		bus.cartridge.unmapBootROM()
 	default:
 		fmt.Println("unimplemented write! 0x" + strconv.FormatUint(uint64(addr), 16))
